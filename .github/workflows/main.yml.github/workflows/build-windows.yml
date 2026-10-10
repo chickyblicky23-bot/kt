@@ -1,0 +1,50 @@
+# Key Trainer
+
+A practice tool for 4-key rhythm games. You play every note yourself on D F J K.
+
+- Patterns: streams, jumpstream, trills, random, or your own (type steps like `d f j k dj fk`)
+- Adjustable BPM, note spacing (quarter/8th/16th), length and scroll speed
+- Results show per-judgment counts, accuracy, max combo, and whether you tend to hit early or late
+
+The game is silent: it shows the patterns but plays no music or clicks.
+To change keys, edit `laneKeys` and `laneNames` at the top of `qml/Main.qml`.
+
+## Getting the .exe
+Push this folder to a GitHub repo (keep the `.github` and `qml` folders). The workflow builds on
+Windows; download the **KeyTrainer-windows** artifact from the Actions tab and run `KeyTrainer.exe`.
+
+cmake_minimum_required(VERSION 3.21)
+project(KeyTrainer VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt6 6.5 REQUIRED COMPONENTS Quick)
+qt_standard_project_setup(REQUIRES 6.5)
+
+qt_add_executable(KeyTrainer main.cpp)
+set_target_properties(KeyTrainer PROPERTIES WIN32_EXECUTABLE TRUE)
+
+qt_add_qml_module(KeyTrainer
+    URI KeyTrainer
+    VERSION 1.0
+    QML_FILES qml/Main.qml
+)
+
+target_link_libraries(KeyTrainer PRIVATE Qt6::Quick)
+
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
+    app.setOrganizationName(QStringLiteral("KeyTrainer"));
+    app.setApplicationName(QStringLiteral("KeyTrainer"));
+
+    QQmlApplicationEngine engine;
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
+                     &app, [] { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
+    engine.loadFromModule("KeyTrainer", "Main");
+    return app.exec();
+}
